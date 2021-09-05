@@ -1,0 +1,21 @@
+{% extends "base_bootstrap.html" %}
+{% block content %}
+    <h1>Title: {{ task.title }}</h1>
+    <p>
+        Task Description :
+        {{ task.description }}
+    </p>
+    <p>
+        Task Status :
+        {{ task.get_status_display }}
+    </p>
+
+    <p>
+        Task Owner :
+        {{ task.owner }}
+    </p>
+
+    <a href="{% url 'taskManager:all-task'%}">BACK</a>
+
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base_bootstrap.html" %}
+{% block content %}
+    <h1>Tasks</h1>
+{% if task_list %}
+
+    <div style="float:right">
+            <!-- https://www.w3schools.com/howto/howto_css_search_button.asp -->
+            <form>
+                <input type="text" placeholder="Search.." name="search"{% if search %} value="{{ search }}" {% endif %}>
+                <button type="submit"><i class="fa fa-search"></i></button>
+                <a href="{% url 'taskManager:all-task' %}"><i class="fa fa-undo"></i></a>
+            </form>
+        </div>
+
+
+        <ul>
+            {% for task in task_list %}
+
+                <li>
+                    <a href="{% url 'taskManager:detail-task' task.id%}" >{{ task.title }}</a>
+                </li>
+                {% if task.owner == user %}
+                        (<a href="{% url 'taskManager:update-task' task.id%}">Edit</a> | <a href="{% url 'taskManager:delete-task' task.id%}">Delete</a>)
+                {% endif %}
+
+
+            {% endfor %}
+        </ul>
+    {% else %}
+            <p>There are no tasks in the database.</p>
+    {% endif %}
+
+    <p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'taskManager:create-task' %}">Add New Task</a> |
+            <a href="{% url 'logout' %}?next={% url 'taskManager:all-task' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}?next={% url 'taskManager:all-task' %}">Login</a>
+        {% endif %}
+    </p>
+
+{% endblock %}
