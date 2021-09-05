@@ -1,6 +1,6 @@
 this project contains a simple app called "Task Manager".
 	* task manager is a system to define task for a project. edit and delete tasks by the owner. 
-	* each loged in user can add tasks to the project by their own username and add a status to it.
+	* each logged in user can add tasks to the project by their own username and add a status to it.
 	* each user can edit and delete tasks that owns. 
 	* each user only can view tasks details that doesn't own, without any permission to edit delete. 
 	
@@ -90,6 +90,26 @@ this project contains a simple app called "Task Manager".
 		https://soroormonzavi.pythonanywhere.com/
 	
 	
-		
+
+	Setups:
+	    The first thing to do is to clone the repository:
+            $ git clone https://github.com/soroor-mon/django-first-project.git
+
+        Create a virtual environment to install dependencies in and activate it:
+            $ virtualenv2 --no-site-packages env
+            $ source env/bin/activate
+
+        Then install the dependencies:
+            (env)$ pip install -r requirements.txt
+
+        Once pip has finished downloading the dependencies:
+            (env)$ cd djangoFinalProject
+            (env)$ python manage.py runserver
+
+        and browse  http://127.0.0.1:8000/
+
+
+
+
 		
 		

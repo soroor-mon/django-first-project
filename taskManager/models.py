@@ -5,6 +5,17 @@ from django.db import models
 # Create your models here.
 from django.conf import settings
 
+STARTED_STATUS = 1
+PROCESSING_STATUS = 2
+PENDING_STATUS = 3
+ENDED_STATUS = 4
+STATUS_CHOICES = (
+        (STARTED_STATUS, 'Started'),
+        (PROCESSING_STATUS, 'Processing'),
+        (PENDING_STATUS, 'Pending'),
+        (ENDED_STATUS, 'Ended')
+    )
+
 
 class Task(models.Model):
     title = models.CharField(
@@ -14,16 +25,6 @@ class Task(models.Model):
     description = models.CharField(
         max_length=2000,
         validators=[MinLengthValidator(2, "Project description must be greater than 1 character")]
-    )
-    STARTED_STATUS = 1
-    PROCESSING_STATUS = 2
-    PENDING_STATUS = 3
-    ENDED_STATUS = 4
-    STATUS_CHOICES = (
-        (STARTED_STATUS, 'Started'),
-        (PROCESSING_STATUS, 'Processing'),
-        (PENDING_STATUS, 'Pending'),
-        (ENDED_STATUS, 'Ended')
     )
 
     status = models.IntegerField(choices=STATUS_CHOICES, default=STARTED_STATUS)

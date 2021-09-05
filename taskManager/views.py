@@ -25,7 +25,7 @@ class TaskListView(View):
         return render(request, "taskManager/task_list.html", ctx)
 
 
-class TaskCreateView(View):
+class TaskCreateView(LoginRequiredMixin, View):
     model = Task
     template_name = 'taskManager/task_form.html'
 
