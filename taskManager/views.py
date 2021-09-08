@@ -1,14 +1,38 @@
+from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DeleteView
+from rolepermissions.mixins import HasPermissionsMixin
+from rest_framework import viewsets, permissions, status, generics
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, BasePermission, SAFE_METHODS
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from taskManager.forms import CreateTaskForm
 from taskManager.models import Task
 from django.views import View
+
+from taskManager.serializers import TaskSerializer, UserSerializer
+
+
+class AuthorOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            return True
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if obj.owner == request.user:
+            return True
+        return False
 
 
 class TaskListView(View):
@@ -44,8 +68,6 @@ class TaskCreateView(LoginRequiredMixin, View):
         task = form.save(commit=False)
         task.owner = self.request.user
         task.save()
-        form.save_m2m()
-
         return HttpResponseRedirect(reverse('taskManager:all-task'))
 
 
@@ -63,13 +85,13 @@ class TaskUpdateView(LoginRequiredMixin, View):
     template_name = 'taskManager/task_form.html'
 
     def get(self, request, pk=None):
-        task = get_object_or_404(Task, id=pk, owner=self.request.user)
+        task = get_object_or_404(Task, id=pk, owner=request.user)
         form = CreateTaskForm(instance=task)
         ctx = {'form': form}
         return render(request, self.template_name, ctx)
 
     def post(self, request, pk=None):
-        task = get_object_or_404(Task, id=pk, owner=self.request.user)
+        task = get_object_or_404(Task, id=pk, owner=request.user)
         form = CreateTaskForm(request.POST, instance=task or None)
 
         if not form.is_valid():
@@ -78,12 +100,81 @@ class TaskUpdateView(LoginRequiredMixin, View):
 
         task = form.save(commit=False)
         task.save()
-        form.save_m2m()
         return HttpResponseRedirect(reverse('taskManager:all-task'))
 
 
-class TaskDeleteView(LoginRequiredMixin, DeleteView):
+# UserPassesTestMixin,
+class TaskDeleteView(UserPassesTestMixin, DeleteView):
     model = Task
+    raise_exception = True
+
+    def test_func(self):
+        self.object = self.get_object()
+        return self.object.owner == self.request.user
 
     def get_success_url(self):
         return reverse('taskManager:all-task')
+
+
+class TaskList(APIView):
+    """
+    List all code tasks, or create a new task.
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get(self, request, format=None):
+        tasks = Task.objects.all()
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = TaskSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class TaskDetail(APIView):
+    """
+    Retrieve, update or delete a code task instance.
+    """
+    permission_classes = [AuthorOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        task = self.get_object(pk)
+        serializer = TaskSerializer(task)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        task = self.get_object(pk)
+        data = JSONParser().parse(request)
+        serializer = TaskSerializer(task, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        task = self.get_object(pk)
+        task.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

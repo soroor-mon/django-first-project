@@ -36,11 +36,30 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
 
 <meta name="dj4e-version" content="2021-04-14">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 {% block head %} {% endblock %}
 
 </head>
 <body>
+
+<!-- Navbar (sit on top) -->
+<div>
+  <div class="w3-bar w3-white w3-wide w3-padding w3-card">
+    <a href="{% url 'taskManager:all-task' %}" class="w3-bar-item w3-button"><b>Task</b> Manager</a>
+    <!-- Float links to the right. Hide them on small screens -->
+    <div class="w3-right w3-hide-small">
+        {% if user.is_authenticated %}
+            <a class="w3-bar-item w3-button" href="{% url 'taskManager:create-task' %}">Add New Task</a>
+            <a class="w3-bar-item w3-button" href="{% url 'logout' %}?next={% url 'taskManager:all-task' %}">Logout</a>
+        {% else %}
+            <a class="w3-bar-item w3-button" href="{% url 'login' %}?next={% url 'taskManager:all-task' %}">Login</a>
+        {% endif %}
+    </div>
+  </div>
+</div>
 <div class="container">
 {% block navbar %} {% endblock %}
 {% block welcome %} {% endblock %}
