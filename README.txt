@@ -60,10 +60,33 @@ this project contains a simple app called "Task Manager".
 		response: task_list.html
 		description: if confirm/ deletes task and returns to all tasks page. if not conirm/ does nothing and returns to all tasks page. 
 		
-		
+
+	API Endpoints:
+
+	    request: GET 'api/task/'
+	    response: json task list
+	    description: returns list of tasks serialized with json format
+
+	    request: POST 'api/task/' , json-task
+	    response: HTTP_201_CREATED
+	    description: creates task with form.
+
+        request: GET 'api/task/<int:pk>/' , pk
+	    response: json-task
+	    description: returns details of task with primary key pk
+
+        request: PUT 'api/task/<int:pk>/' , pk , json-task
+	    response: json-task
+	    description: updates task found with pk returns 404 if pk not found.
+
+	    request: DELETE 'api/task/<int:pk>/' , pk
+	    response: HTTP_204_NO_CONTENT
+	    description: deletes task found with pk returns 404 if pk not found.
+
+
 		
 	
-	TEMPLATEs :
+	TEMPLATES :
 				
 		task_list.html
 			extends: "base_bootstrap.html"

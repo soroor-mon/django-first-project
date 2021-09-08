@@ -1,17 +1,13 @@
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DeleteView
-from rolepermissions.mixins import HasPermissionsMixin
-from rest_framework import viewsets, permissions, status, generics
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import permissions, status, generics
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, BasePermission, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
