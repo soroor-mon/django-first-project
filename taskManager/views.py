@@ -1,3 +1,5 @@
+from datetime import time
+
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
@@ -5,6 +7,7 @@ from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import DeleteView
 from rest_framework import permissions, status, generics
 from rest_framework.parsers import JSONParser
@@ -126,7 +129,7 @@ class TaskList(APIView):
     def post(self, request, format=None):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -155,10 +158,9 @@ class TaskDetail(APIView):
     def put(self, request, pk):
         self.permission_classes = [AuthorOrReadOnly]
         task = self.get_object(pk)
-        #data = JSONParser().parse(request)
         serializer = TaskSerializer(task, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=request.user)
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
 
