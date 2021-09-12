@@ -138,7 +138,7 @@ class TaskDetail(APIView):
     """
     Retrieve, update or delete a code task instance.
     """
-    permission_classes = [AuthorOrReadOnly]
+    #permission_classes = [AuthorOrReadOnly]
 
     def get_object(self, pk):
         try:
@@ -147,20 +147,23 @@ class TaskDetail(APIView):
             raise Http404
 
     def get(self, request, pk):
+        self.permission_classes = [AuthorOrReadOnly]
         task = self.get_object(pk)
         serializer = TaskSerializer(task)
         return Response(serializer.data)
 
     def put(self, request, pk):
+        self.permission_classes = [AuthorOrReadOnly]
         task = self.get_object(pk)
-        data = JSONParser().parse(request)
-        serializer = TaskSerializer(task, data=data)
+        #data = JSONParser().parse(request)
+        serializer = TaskSerializer(task, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
 
     def delete(self, request, pk):
+        self.permission_classes = [AuthorOrReadOnly]
         task = self.get_object(pk)
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
