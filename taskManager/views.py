@@ -7,10 +7,8 @@ from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
-from django.utils import timezone
 from django.views.generic import DeleteView
 from rest_framework import permissions, status, generics
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
